@@ -1,0 +1,40 @@
+<div class="sidebar d-flex flex-column">
+  <div class="brand">
+    <h5><i class="bi bi-gear-fill me-2"></i>Suma-Tech</h5>
+    <small>PT. Suma Karya Teknik</small>
+  </div>
+  <nav class="flex-grow-1 pt-2">
+    <div class="nav-section">Utama</div>
+    <a href="/dashboard" class="nav-link <%= page==='dashboard'?'active':'' %>"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/unit" class="nav-link <%= page==='unit'?'active':'' %>"><i class="bi bi-collection"></i> Etalase Digital</a>
+
+    <div class="nav-section">Penjualan & CRM</div>
+    <a href="/pelanggan" class="nav-link <%= page==='pelanggan'?'active':'' %>"><i class="bi bi-people"></i> Pelanggan</a>
+    <a href="/request" class="nav-link <%= page==='request'?'active':'' %>"><i class="bi bi-clipboard-plus"></i> Request Unit</a>
+    <a href="/invoice" class="nav-link <%= page==='invoice'?'active':'' %>"><i class="bi bi-receipt"></i> Invoice & Bayar</a>
+    <a href="/garansi" class="nav-link <%= page==='garansi'?'active':'' %>"><i class="bi bi-shield-check"></i> Garansi & Klaim</a>
+
+    <div class="nav-section">Pengadaan</div>
+    <a href="/supplier" class="nav-link <%= page==='supplier'?'active':'' %>"><i class="bi bi-truck"></i> Supplier</a>
+    <a href="/purchasing" class="nav-link <%= page==='purchasing'?'active':'' %>"><i class="bi bi-cart3"></i> Unit Kandidat</a>
+    <a href="/inspeksi" class="nav-link <%= page==='inspeksi'?'active':'' %>"><i class="bi bi-search"></i> Inspeksi</a>
+
+    <div class="nav-section">Job Costing</div>
+    <a href="/estimasi" class="nav-link <%= page==='estimasi'?'active':'' %>"><i class="bi bi-calculator"></i> Nota Estimasi</a>
+    <a href="/rekondisi" class="nav-link <%= page==='rekondisi'?'active':'' %>"><i class="bi bi-tools"></i> Rekondisi</a>
+    <a href="/qc" class="nav-link <%= page==='qc'?'active':'' %>"><i class="bi bi-patch-check"></i> Quality Control</a>
+    <a href="/nota" class="nav-link <%= page==='nota'?'active':'' %>"><i class="bi bi-file-earmark-text"></i> Nota Aktual</a>
+
+    <div class="nav-section">Gudang & Laporan</div>
+    <a href="/inventaris" class="nav-link <%= page==='inventaris'?'active':'' %>"><i class="bi bi-boxes"></i> Inventaris</a>
+    <a href="/laporan" class="nav-link <%= page==='laporan'?'active':'' %>"><i class="bi bi-bar-chart"></i> Laporan</a>
+  </nav>
+  <div class="sidebar-footer">
+    <% if(user){ %>
+    <div class="text-white fw-600"><i class="bi bi-person-circle me-1"></i> <%= user.NamaStaf %></div>
+    <small class="text-muted"><%= user.NamaRole %></small><br>
+    <a href="/logout" class="text-danger" style="font-size:12px;"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <% } %>
+  </div>
+</div>
+<div class="main-content">

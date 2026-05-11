@@ -1,0 +1,54 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'inventaris'}) %>
+<div class="topbar"><h4>Inventaris Suku Cadang (UC-18)</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mTambah">+ Tambah Item</button></div>
+<%- include('../partial/flash') %>
+<% const kritis=rows.filter(r=>r.StokTersedia<=r.BatasMinimum); %>
+<% if(kritis.length){ %><div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i><strong><%= kritis.length %> item stok kritis!</strong> Segera lakukan restock.</div><% } %>
+<div class="card mb-3"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>Kode</th><th>Nama Item</th><th>Kategori</th><th>Stok</th><th>Min</th><th>Harga Beli</th><th>Rak</th><th>Aksi</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td class="small text-muted"><%= r.KodeItem %></td>
+<td class="fw-semibold"><%= r.NamaItem %></td>
+<td><small><%= r.Kategori %></small></td>
+<td class="fw-bold <%= r.StokTersedia===0?'text-danger':r.StokTersedia<=r.BatasMinimum?'text-warning':'text-success' %>"><%= r.StokTersedia %> <%= r.Satuan %></td>
+<td class="text-muted"><%= r.BatasMinimum %></td>
+<td>Rp <%= Number(r.HargaBeli).toLocaleString('id-ID') %></td>
+<td><small><%= r.LokasiRak||'-' %></small></td>
+<td class="d-flex gap-1">
+<button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#mStok" onclick="setStok('<%= r.PartID %>','<%= r.NamaItem %>',<%= r.StokTersedia %>)">Update Stok</button>
+<button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#mOpname" onclick="setOpname('<%= r.PartID %>','<%= r.NamaItem %>',<%= r.StokTersedia %>)">Opname</button>
+</td></tr><% }) %>
+</tbody></table></div></div>
+<div class="card"><div class="card-header">Riwayat Stock Opname</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Item</th><th>Stok Sistem</th><th>Stok Fisik</th><th>Selisih</th><th>Keterangan</th><th>Tgl</th></tr></thead><tbody>
+<% opname.forEach(o=>{ %><tr><td><%= o.NamaItem %></td><td><%= o.StokSistem %></td><td><%= o.StokFisik %></td><td class="fw-bold <%= o.Selisih<0?'text-danger':o.Selisih>0?'text-success':'' %>"><%= o.Selisih>=0?'+':'' %><%= o.Selisih %></td><td class="small text-muted"><%= o.Keterangan||'-' %></td><td class="small"><%= new Date(o.TanggalOpname).toLocaleDateString('id-ID') %></td></tr><% }) %>
+<% if(!opname.length){ %><tr><td colspan="6" class="text-center text-muted p-3">Belum ada stock opname</td></tr><% } %>
+</tbody></table></div></div>
+
+<div class="modal fade" id="mTambah"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Tambah Item Suku Cadang</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/inventaris"><div class="modal-body row g-2">
+<div class="col-md-6"><label class="form-label fw-semibold">Kode Item</label><input type="text" name="KodeItem" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Nama Item</label><input type="text" name="NamaItem" class="form-control" required></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Kategori</label><input type="text" name="Kategori" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Satuan</label><input type="text" name="Satuan" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Lokasi Rak</label><input type="text" name="LokasiRak" class="form-control"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Harga Beli (Rp)</label><input type="number" name="HargaBeli" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Stok Awal</label><input type="number" name="StokTersedia" class="form-control" value="0"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Batas Min</label><input type="number" name="BatasMinimum" class="form-control" value="5"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
+
+<div class="modal fade" id="mStok"><div class="modal-dialog" style="max-width:360px"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="stokTitle">Update Stok</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" id="formStok"><div class="modal-body"><label class="form-label fw-semibold">Stok Baru</label><input type="number" name="StokBaru" id="stokInput" class="form-control" required min="0"></div>
+<div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
+
+<div class="modal fade" id="mOpname"><div class="modal-dialog" style="max-width:400px"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="opnameTitle">Stock Opname</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/inventaris/opname" id="formOpname"><input type="hidden" name="PartID" id="opnamePartID">
+<div class="modal-body">
+<p class="text-muted small">Stok Sistem: <strong id="stokSistem">0</strong></p>
+<div class="mb-2"><label class="form-label fw-semibold">Stok Fisik Aktual</label><input type="number" name="StokFisik" class="form-control" required min="0"></div>
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal Opname</label><input type="date" name="TanggalOpname" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+<div class="mb-2"><label class="form-label fw-semibold">Keterangan Selisih</label><textarea name="Keterangan" class="form-control" rows="2"></textarea></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan Opname</button></div></form></div></div></div>
+
+<script>
+function setStok(id,nama,stok){ document.getElementById('stokTitle').textContent='Update Stok: '+nama; document.getElementById('formStok').action='/inventaris/'+id+'/stok'; document.getElementById('stokInput').value=stok; }
+function setOpname(id,nama,stok){ document.getElementById('opnameTitle').textContent='Stock Opname: '+nama; document.getElementById('opnamePartID').value=id; document.getElementById('stokSistem').textContent=stok; }
+</script>
+<%- include('../partial/foot') %>

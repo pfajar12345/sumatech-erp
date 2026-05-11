@@ -1,0 +1,19 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'dashboard'}) %>
+<div class="topbar"><h4><i class="bi bi-speedometer2 me-2 text-warning"></i>Dashboard</h4><small class="text-muted"><%= new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'}) %></small></div>
+<%- include('../partial/flash') %>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card p-3 border-start border-success border-4"><div class="text-muted small">Unit Siap Jual</div><div class="fs-2 fw-bold text-success"><%= ready %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-primary border-4"><div class="text-muted small">Dalam Rekondisi</div><div class="fs-2 fw-bold text-primary"><%= rekondisi %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-secondary border-4"><div class="text-muted small">Unit Terjual</div><div class="fs-2 fw-bold text-secondary"><%= sold %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-warning border-4"><div class="text-muted small">Total Penjualan</div><div class="fs-5 fw-bold text-warning">Rp <%= Number(penjualan).toLocaleString('id-ID') %></div></div></div>
+</div>
+<div class="row g-3">
+  <div class="col-md-8"><div class="card"><div class="card-header">Unit Terbaru</div><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>Unit ID</th><th>Mesin</th><th>Status</th><th>Harga Jual</th></tr></thead><tbody>
+  <% unitTerbaru.forEach(u=>{ %><tr><td><a href="/unit/<%= u.UnitID %>"><%= u.UnitID %></a></td><td><%= u.Merk %> <%= u.Tipe %><br><small class="text-muted"><%= u.JenisMesin %></small></td><td><span class="badge bg-<%= u.StatusUnit==='Ready'?'success':u.StatusUnit==='Sold'?'secondary':u.StatusUnit==='Dalam Rekondisi'?'primary':'warning' %>"><%= u.StatusUnit %></span></td><td><%= u.HargaJual?'Rp '+Number(u.HargaJual).toLocaleString('id-ID'):'-' %></td></tr><% }) %>
+  </tbody></table></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-header text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Stok Kritis (<%= stokKritis %> item)</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Item</th><th>Stok</th><th>Min</th></tr></thead><tbody>
+  <% kritis.forEach(k=>{ %><tr><td class="small"><%= k.NamaItem %></td><td class="fw-bold text-danger"><%= k.StokTersedia %></td><td class="text-muted"><%= k.BatasMinimum %></td></tr><% }) %>
+  <% if(!kritis.length){ %><tr><td colspan="3" class="text-center text-muted p-3">Semua stok aman ✓</td></tr><% } %>
+  </tbody></table></div></div></div>
+</div>
+<%- include('../partial/foot') %>

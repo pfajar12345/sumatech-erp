@@ -1,0 +1,37 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'purchasing'}) %>
+<div class="topbar"><h4>Unit Kandidat (Purchasing)</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mUnit">+ Input Unit Kandidat</button></div>
+<%- include('../partial/flash') %>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>Unit ID</th><th>Request</th><th>Mesin</th><th>Supplier</th><th>Harga Tawar</th><th>Harga Beli</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td><a href="/unit/<%= r.UnitID %>"><%= r.UnitID %></a></td>
+<td><small><%= r.RequestUnitID||'-' %></small></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.JenisMesin %></small></td>
+<td><small><%= r.NamaSupplier||'-' %></small></td>
+<td>Rp <%= Number(r.HargaTawarSupplier||0).toLocaleString('id-ID') %></td>
+<td><%= r.HargaBeli?'Rp '+Number(r.HargaBeli).toLocaleString('id-ID'):'-' %></td>
+<td><span class="badge bg-info text-dark"><%= r.StatusUnit %></span></td>
+<td><% if(r.StatusUnit==='Dipilih Pelanggan' || r.StatusUnit==='Selesai Inspeksi'){ %><button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#mBeli" onclick="setBeli('<%= r.UnitID %>')">Konfirmasi Beli</button><% } %></td>
+</tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="8" class="text-center text-muted p-4">Belum ada unit kandidat</td></tr><% } %>
+</tbody></table></div></div>
+
+<div class="modal fade" id="mUnit"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Input Unit Kandidat (UC-05)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/purchasing"><div class="modal-body row g-2">
+<div class="col-md-6"><label class="form-label fw-semibold">Request Unit (jika ada)</label><select name="RequestUnitID" class="form-select"><option value="">Tidak ada / Stok mandiri</option><% requests.forEach(r=>{ %><option value="<%= r.RequestUnitID %>"><%= r.RequestUnitID %> - <%= r.NamaPelanggan %> (<%= r.JenisMesin %>)</option><% }) %></select></div>
+<div class="col-md-6"><label class="form-label fw-semibold">Supplier</label><select name="SupplierID" class="form-select" required><option value="">Pilih...</option><% suppliers.forEach(s=>{ %><option value="<%= s.SupplierID %>"><%= s.NamaSupplier %></option><% }) %></select></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Jenis Mesin</label><select name="JenisMesin" class="form-select" required><% ['Pompa','Boiler','Dinamo','Control Panel','Valve'].forEach(j=>{ %><option><%= j %></option><% }) %></select></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Merk</label><input type="text" name="Merk" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Tipe</label><input type="text" name="Tipe" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Tahun</label><input type="number" name="Tahun" class="form-control" placeholder="2015"></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Kondisi Awal</label><input type="text" name="KondisiAwal" class="form-control" placeholder="45%"></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Harga Tawar (Rp)</label><input type="number" name="HargaTawarSupplier" class="form-control" required></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Lokasi Unit</label><input type="text" name="LokasiUnit" class="form-control" placeholder="Alamat lokasi"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Input Unit Kandidat</button></div></form></div></div></div>
+
+<div class="modal fade" id="mBeli"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Konfirmasi Pembelian Unit</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" id="formBeli"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Harga Beli Aktual (Rp)</label><input type="number" name="HargaBeli" class="form-control" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal Masuk Gudang</label><input type="date" name="TanggalMasukGudang" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success">Konfirmasi Beli & Masuk Gudang</button></div></form></div></div></div>
+<script>function setBeli(id){ document.getElementById('formBeli').action='/purchasing/'+id+'/beli'; }</script>
+<%- include('../partial/foot') %>

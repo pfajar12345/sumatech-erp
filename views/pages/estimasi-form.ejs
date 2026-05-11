@@ -1,0 +1,38 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'estimasi'}) %>
+<div class="topbar"><div><h4>Form Nota Estimasi (UC-08)</h4><small class="text-muted"><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %></small></div><a href="/estimasi" class="btn btn-outline-secondary btn-sm">← Kembali</a></div>
+<%- include('../partial/flash') %>
+<form method="POST" action="/estimasi">
+<input type="hidden" name="UnitID" value="<%= u.UnitID %>">
+<input type="hidden" name="RequestUnitID" value="<%= u.RequestUnitID||'' %>">
+<div class="card mb-3"><div class="card-header">3 Komponen Biaya Estimasi</div><div class="card-body row g-2">
+<div class="col-md-4"><label class="form-label fw-semibold">Biaya Pengadaan (Rp)</label>
+<input type="number" name="BiayaPengadaan" class="form-control" value="<%= u.HargaTawarSupplier||0 %>" required oninput="hitung()"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Biaya Jasa Rekondisi (Rp)</label>
+<input type="number" name="BiayaJasaRekondisi" class="form-control" value="<%= (u.EstimasiJamKerja||40)*150000 %>" required oninput="hitung()">
+<small class="text-muted"><%= u.EstimasiJamKerja||40 %> jam × Rp 150.000/jam</small></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Biaya Suku Cadang (Rp)</label>
+<input type="number" name="BiayaSukuCadang" class="form-control" value="<%= u.EstimasiSukuCadang||0 %>" required oninput="hitung()"></div>
+<div class="col-md-6 mt-2"><div class="alert alert-secondary py-2">Total Est. HPP: <strong id="totalHPP">Rp 0</strong></div></div>
+</div></div>
+<div class="card mb-3"><div class="card-header">🤖 Rekomendasi Harga Jual (AI Simulasi)</div><div class="card-body">
+<div class="alert alert-info py-2 small"><i class="bi bi-robot me-1"></i> Rekomendasi berdasarkan histori penjualan unit serupa & margin standar perusahaan (markup 50%).</div>
+<div class="row g-2">
+<div class="col-md-4"><label class="form-label fw-semibold">Rekomendasi AI</label><input type="text" class="form-control" id="rekAI" value="Rp <%= Number(rekomendasiHJ).toLocaleString('id-ID') %>" readonly></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Harga Jual Disepakati (Rp)</label><input type="number" name="HargaJualDisepakati" class="form-control" value="<%= rekomendasiHJ %>" required></div>
+<div class="col-12"><small class="text-muted">⚠ <em>Disclaimer: Seluruh nilai bersifat perkiraan dan dapat berubah sesuai kondisi aktual rekondisi.</em></small></div>
+</div></div></div>
+<button class="btn btn-warning px-4">Terbitkan Nota Estimasi</button>
+<a href="/estimasi" class="btn btn-outline-secondary ms-2">Batal</a>
+</form>
+<script>
+function hitung(){
+  const p=parseInt(document.querySelector('[name=BiayaPengadaan]').value)||0;
+  const j=parseInt(document.querySelector('[name=BiayaJasaRekondisi]').value)||0;
+  const s=parseInt(document.querySelector('[name=BiayaSukuCadang]').value)||0;
+  const total=p+j+s;
+  document.getElementById('totalHPP').textContent='Rp '+total.toLocaleString('id-ID');
+  document.getElementById('rekAI').value='Rp '+Math.round(total*1.5/100000)*100000.toLocaleString('id-ID');
+}
+hitung();
+</script>
+<%- include('../partial/foot') %>

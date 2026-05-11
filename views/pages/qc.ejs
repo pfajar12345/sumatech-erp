@@ -1,0 +1,21 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'qc'}) %>
+<div class="topbar"><h4>Quality Control (UC-13)</h4></div>
+<%- include('../partial/flash') %>
+<% if(unitAntri.length){ %>
+<div class="card mb-3 border-info"><div class="card-header text-info">Unit Menunggu QC (<%= unitAntri.length %>)</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Unit</th><th>LogBook</th><th>Teknisi Rekondisi</th><th>Aksi</th></tr></thead><tbody>
+<% unitAntri.forEach(u=>{ %><tr><td><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %> (<%= u.JenisMesin %>)</td><td><%= u.LogBookID %></td><td><small class="text-muted">ID: <%= u.StafRekondisi %></small></td>
+<td><a href="/qc/form/<%= u.LogBookID %>" class="btn btn-sm btn-info text-white">Mulai QC</a></td></tr><% }) %>
+</tbody></table></div></div>
+<% } %>
+<div class="card"><div class="card-header">Riwayat Laporan QC</div><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>QC ID</th><th>Unit</th><th>Teknisi QC</th><th>Kondisi</th><th>Kesimpulan</th><th>Tanggal</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td><%= r.QCID %></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.UnitID %></small></td>
+<td><%= r.NamaStaf %></td>
+<td><strong><%= r.PersentaseKondisi %>%</strong></td>
+<td><span class="badge bg-<%= r.KesimpulanQC==='Lulus'?'success':'danger' %>"><%= r.KesimpulanQC %></span></td>
+<td><%= new Date(r.TanggalQC).toLocaleDateString('id-ID') %></td>
+</tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="6" class="text-center text-muted p-4">Belum ada laporan QC</td></tr><% } %>
+</tbody></table></div></div>
+<%- include('../partial/foot') %>

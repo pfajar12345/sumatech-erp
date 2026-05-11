@@ -1,0 +1,28 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'qc'}) %>
+<div class="topbar"><div><h4>Form QC (UC-13)</h4><small class="text-muted"><%= lb.UnitID %> — <%= lb.Merk %> <%= lb.Tipe %> (<%= lb.JenisMesin %>)</small></div><a href="/qc" class="btn btn-outline-secondary btn-sm">← Kembali</a></div>
+<%- include('../partial/flash') %>
+<div class="alert alert-warning"><i class="bi bi-shield-exclamation me-1"></i><strong>Anti-Bias:</strong> Teknisi QC harus berbeda dari teknisi yang mengerjakan rekondisi. Sistem akan memvalidasi otomatis.</div>
+<form method="POST" action="/qc">
+<input type="hidden" name="LogBookID" value="<%= lb.LogBookID %>">
+<input type="hidden" name="UnitID" value="<%= lb.UnitID %>">
+<div class="card mb-3"><div class="card-header">Checklist QC — <%= lb.JenisMesin %></div><div class="card-body">
+<% items.forEach((item,i)=>{ %>
+<div class="mb-2 p-2 border rounded">
+<label class="fw-semibold d-block mb-1"><%= i+1 %>. <%= item %></label>
+<div class="d-flex gap-3">
+<div class="form-check"><input class="form-check-input" type="radio" name="chk_<%= i %>" value="Lulus" required><label class="form-check-label text-success">✅ Lulus</label></div>
+<div class="form-check"><input class="form-check-input" type="radio" name="chk_<%= i %>" value="Gagal"><label class="form-check-label text-danger">❌ Gagal</label></div>
+<div class="form-check"><input class="form-check-input" type="radio" name="chk_<%= i %>" value="Perlu Catatan"><label class="form-check-label text-warning">⚠ Perlu Catatan</label></div>
+</div></div>
+<% }) %>
+</div></div>
+<div class="card mb-3"><div class="card-header">Hasil Akhir QC</div><div class="card-body row g-2">
+<div class="col-md-4"><label class="form-label fw-semibold">Persentase Kondisi Akhir (%)</label><input type="number" name="PersentaseKondisi" class="form-control" min="0" max="100" required placeholder="75"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Kesimpulan QC</label>
+<select name="KesimpulanQC" class="form-select" required><option value="Lulus">✅ Lulus QC</option><option value="Gagal">❌ Gagal QC (kembali ke rekondisi)</option></select></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Catatan QC</label><textarea name="CatatanQC" class="form-control" rows="2" placeholder="Catatan tambahan..."></textarea></div>
+</div></div>
+<button class="btn btn-info text-white px-4">Simpan Hasil QC</button>
+<a href="/qc" class="btn btn-outline-secondary ms-2">Batal</a>
+</form>
+<%- include('../partial/foot') %>

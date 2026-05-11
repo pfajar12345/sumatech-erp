@@ -1,0 +1,41 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'invoice'}) %>
+<div class="topbar"><h4>Invoice & Pembayaran (UC-15, UC-16)</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mInv">+ Buat Invoice</button></div>
+<%- include('../partial/flash') %>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>No. Invoice</th><th>Pelanggan</th><th>Unit</th><th>Total</th><th>Status</th><th>Tgl</th><th>Aksi</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td class="fw-semibold small"><%= r.NomorInvoice %></td>
+<td><%= r.NamaPelanggan %></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.JenisMesin %></small></td>
+<td class="fw-bold">Rp <%= Number(r.TotalHarga).toLocaleString('id-ID') %></td>
+<td><span class="badge bg-<%= r.StatusInvoice==='Lunas'?'success':r.StatusInvoice==='DP Diterima'?'info':'warning' %>"><%= r.StatusInvoice %></span></td>
+<td><small><%= new Date(r.TanggalInvoice).toLocaleDateString('id-ID') %></small></td>
+<td><% if(r.StatusInvoice!=='Lunas'){ %><button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#mBayar" onclick="setBayar('<%= r.InvoiceID %>','<%= r.StatusInvoice %>')">Catat Bayar</button><% } else { %><span class="text-success small">✓ Lunas</span><% } %></td>
+</tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="7" class="text-center text-muted p-4">Belum ada invoice</td></tr><% } %>
+</tbody></table></div></div>
+
+<div class="modal fade" id="mInv"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Buat Invoice (UC-15)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/invoice"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Pelanggan</label><select name="PelangganID" class="form-select" required><option value="">Pilih...</option><% pelanggan.forEach(p=>{ %><option value="<%= p.PelangganID %>"><%= p.NamaPelanggan %></option><% }) %></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Unit (Status: Ready)</label><select name="UnitID" class="form-select" required><option value="">Pilih...</option><% unitReady.forEach(u=>{ %><option value="<%= u.UnitID %>"><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %> | Rp <%= Number(u.HargaJual||0).toLocaleString('id-ID') %></option><% }) %></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Total Harga (Rp)</label><input type="number" name="TotalHarga" class="form-control" required></div>
+<div class="row g-2 mb-2"><div class="col"><label class="form-label fw-semibold">Biaya Pengiriman</label><input type="number" name="BiayaPengiriman" class="form-control" value="0"></div>
+<div class="col"><label class="form-label fw-semibold">Biaya Instalasi</label><input type="number" name="BiayaInstalasi" class="form-control" value="0"></div></div>
+<div class="row g-2"><div class="col"><label class="form-label fw-semibold">Durasi Garansi (bulan)</label><input type="number" name="DurasiGaransi" class="form-control" value="3"></div>
+<div class="col"><label class="form-label fw-semibold">Syarat Garansi</label><input type="text" name="SyaratGaransi" class="form-control" value="Garansi suku cadang"></div></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Terbitkan Invoice</button></div></form></div></div></div>
+
+<div class="modal fade" id="mBayar"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Pembayaran (UC-16)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" id="formBayar"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Jenis Pembayaran</label><select name="JenisPembayaran" class="form-select" required id="jenisBayar"><option value="DP">Uang Muka (DP)</option><option value="Pelunasan">Pelunasan</option><option value="Penuh">Pembayaran Penuh</option></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Nominal (Rp)</label><input type="number" name="NominalDibayar" class="form-control" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">No. Referensi Transfer</label><input type="text" name="NomorReferensi" class="form-control" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal Bayar</label><input type="date" name="TanggalBayar" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-success">Catat Pembayaran</button></div></form></div></div></div>
+<script>
+function setBayar(id,status){
+  document.getElementById('formBayar').action='/invoice/'+id+'/bayar';
+  document.getElementById('jenisBayar').value=status==='DP Diterima'?'Pelunasan':'Penuh';
+}
+</script>
+<%- include('../partial/foot') %>

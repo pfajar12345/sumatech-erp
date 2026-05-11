@@ -1,0 +1,27 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'unit'}) %>
+<div class="topbar"><div><h4><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %></h4><small class="text-muted"><%= u.JenisMesin %></small></div><a href="/unit" class="btn btn-outline-secondary btn-sm">← Kembali</a></div>
+<%- include('../partial/flash') %>
+<div class="row g-3">
+  <div class="col-md-6"><div class="card"><div class="card-header">Informasi Unit</div><div class="card-body"><table class="table table-sm table-borderless">
+  <tr><th>Unit ID</th><td><%= u.UnitID %></td></tr><tr><th>Jenis Mesin</th><td><%= u.JenisMesin %></td></tr>
+  <tr><th>Merk / Tipe</th><td><%= u.Merk %> / <%= u.Tipe %></td></tr><tr><th>Tahun</th><td><%= u.Tahun||'-' %></td></tr>
+  <tr><th>Supplier</th><td><%= u.NamaSupplier||'-' %></td></tr><tr><th>Kondisi Awal</th><td><%= u.KondisiAwal||'-' %></td></tr>
+  <tr><th>Kondisi Akhir</th><td class="fw-bold text-success"><%= u.KondisiAkhir||'-' %></td></tr>
+  <tr><th>Status</th><td><span class="badge bg-primary"><%= u.StatusUnit %></span></td></tr>
+  <tr><th>Tgl Masuk Gudang</th><td><%= u.TanggalMasukGudang?new Date(u.TanggalMasukGudang).toLocaleDateString('id-ID'):'-' %></td></tr>
+  </table></div></div></div>
+  <div class="col-md-6"><div class="card"><div class="card-header">Informasi Harga</div><div class="card-body"><table class="table table-sm table-borderless">
+  <tr><th>Harga Tawar Supplier</th><td><%= u.HargaTawarSupplier?'Rp '+Number(u.HargaTawarSupplier).toLocaleString('id-ID'):'-' %></td></tr>
+  <tr><th>Harga Beli</th><td><%= u.HargaBeli?'Rp '+Number(u.HargaBeli).toLocaleString('id-ID'):'-' %></td></tr>
+  <tr><th>HPP (dikunci)</th><td class="fw-bold"><%= u.HPP?'Rp '+Number(u.HPP).toLocaleString('id-ID'):'-' %></td></tr>
+  <tr><th>Harga Jual</th><td class="fw-bold text-warning fs-5"><%= u.HargaJual?'Rp '+Number(u.HargaJual).toLocaleString('id-ID'):'Belum ditetapkan' %></td></tr>
+  <% if(u.HPP&&u.HargaJual){ %><tr><th>Margin</th><td class="text-success fw-bold"><%= ((u.HargaJual-u.HPP)/u.HPP*100).toFixed(1) %>%</td></tr><% } %>
+  </table></div></div>
+  <% if(lb.length){ %><div class="card mt-3"><div class="card-header">Riwayat LogBook</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>LogBook ID</th><th>Tgl Mulai</th><th>Status</th><th>Biaya SC</th></tr></thead><tbody>
+  <% lb.forEach(l=>{ %><tr><td><a href="/rekondisi/<%= l.LogBookID %>"><%= l.LogBookID %></a></td><td><%= new Date(l.TanggalMulai).toLocaleDateString('id-ID') %></td><td><span class="badge bg-<%= l.StatusLogBook==='Selesai'?'success':'warning' %>"><%= l.StatusLogBook %></span></td><td>Rp <%= Number(l.TotalBiayaSC).toLocaleString('id-ID') %></td></tr><% }) %>
+  </tbody></table></div></div><% } %></div>
+  <% if(inv){ %><div class="col-12"><div class="card border-success"><div class="card-header text-success">Invoice Terkait: <%= inv.NomorInvoice %></div><div class="card-body">
+  <strong><%= inv.NamaPelanggan %></strong> — Total: <strong>Rp <%= Number(inv.TotalHarga).toLocaleString('id-ID') %></strong> — Status: <span class="badge bg-<%= inv.StatusInvoice==='Lunas'?'success':'warning' %>"><%= inv.StatusInvoice %></span>
+  </div></div></div><% } %>
+</div>
+<%- include('../partial/foot') %>

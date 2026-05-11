@@ -1,0 +1,20 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'inspeksi'}) %>
+<div class="topbar"><h4>Laporan Inspeksi (UC-06)</h4></div>
+<%- include('../partial/flash') %>
+<% if(unitAntri.length){ %>
+<div class="card mb-3 border-warning"><div class="card-header text-warning">Unit Menunggu Inspeksi (<%= unitAntri.length %>)</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Unit ID</th><th>Mesin</th><th>Supplier</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody>
+<% unitAntri.forEach(u=>{ %><tr><td><%= u.UnitID %></td><td><%= u.Merk %> <%= u.Tipe %> (<%= u.JenisMesin %>)</td><td><%= u.NamaSupplier %></td><td><small><%= u.LokasiUnit||'-' %></small></td><td><a href="/inspeksi/form/<%= u.UnitID %>" class="btn btn-sm btn-warning">Isi Laporan Inspeksi</a></td></tr><% }) %>
+</tbody></table></div></div>
+<% } %>
+<div class="card"><div class="card-header">Riwayat Laporan Inspeksi</div><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>No. Dokumen</th><th>Unit</th><th>Teknisi</th><th>Tgl Inspeksi</th><th>Est. Jam</th><th>Kesimpulan</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td><%= r.NomorDokumen %></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.UnitID %></small></td>
+<td><%= r.NamaStaf %></td>
+<td><%= new Date(r.TanggalInspeksi).toLocaleDateString('id-ID') %></td>
+<td><%= r.EstimasiJamKerja %> jam</td>
+<td><span class="badge bg-<%= r.KesimpulanKelayakan==='Layak'?'success':'danger' %>"><%= r.KesimpulanKelayakan %></span></td>
+</tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="6" class="text-center text-muted p-4">Belum ada laporan inspeksi</td></tr><% } %>
+</tbody></table></div></div>
+<%- include('../partial/foot') %>

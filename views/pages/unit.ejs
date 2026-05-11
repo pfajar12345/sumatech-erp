@@ -1,0 +1,15 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'unit'}) %>
+<div class="topbar"><h4>Etalase Digital</h4><span class="badge bg-success fs-6"><%= rows.filter(r=>r.StatusUnit==='Ready').length %> Unit Ready</span></div>
+<%- include('../partial/flash') %>
+<form method="GET" class="card card-body mb-3 d-flex flex-row gap-2 flex-wrap">
+  <input type="text" name="q" class="form-control form-control-sm" style="max-width:200px" placeholder="Cari merk/tipe..." value="<%= q||'' %>">
+  <select name="jenis" class="form-select form-select-sm" style="max-width:160px"><option value="">Semua Jenis</option><% ['Pompa','Boiler','Dinamo','Control Panel','Valve'].forEach(j=>{ %><option <%=jenis===j?'selected':''%>><%= j %></option><% }) %></select>
+  <select name="status" class="form-select form-select-sm" style="max-width:200px"><option value="">Semua Status</option><% ['Ready','Dalam Rekondisi','Menunggu QC','Menunggu Validasi Finance','Masuk Gudang','Menunggu Inspeksi','Selesai Inspeksi','Sold'].forEach(s=>{ %><option <%=status===s?'selected':''%>><%= s %></option><% }) %></select>
+  <button class="btn btn-warning btn-sm">Filter</button><a href="/unit" class="btn btn-outline-secondary btn-sm">Reset</a>
+</form>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>Unit ID</th><th>Jenis Mesin</th><th>Merk & Tipe</th><th>Tahun</th><th>Kondisi</th><th>Harga Jual</th><th>Status</th></tr></thead><tbody>
+<% const sc={Ready:'success',Sold:'secondary','Dalam Rekondisi':'primary','Menunggu QC':'info','Masuk Gudang':'warning','Menunggu Inspeksi':'light','Selesai Inspeksi':'info','Menunggu Validasi Finance':'warning',Ditolak:'danger',Reserved:'dark'}; %>
+<% rows.forEach(r=>{ %><tr><td><a href="/unit/<%= r.UnitID %>"><%= r.UnitID %></a></td><td><%= r.JenisMesin %></td><td class="fw-semibold"><%= r.Merk %> <%= r.Tipe %></td><td><%= r.Tahun||'-' %></td><td><%= r.KondisiAkhir||r.KondisiAwal||'-' %></td><td><%= r.HargaJual?'Rp '+Number(r.HargaJual).toLocaleString('id-ID'):'-' %></td><td><span class="badge bg-<%= sc[r.StatusUnit]||'secondary' %> text-<%= r.StatusUnit==='Menunggu Inspeksi'?'dark':'' %>"><%= r.StatusUnit %></span></td></tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="7" class="text-center text-muted p-4">Tidak ada unit ditemukan</td></tr><% } %>
+</tbody></table></div></div>
+<%- include('../partial/foot') %>

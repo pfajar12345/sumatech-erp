@@ -1,0 +1,22 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'inspeksi'}) %>
+<div class="topbar"><div><h4>Form Inspeksi Unit</h4><small class="text-muted"><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %> (<%= u.JenisMesin %>)</small></div><a href="/inspeksi" class="btn btn-outline-secondary btn-sm">← Kembali</a></div>
+<%- include('../partial/flash') %>
+<form method="POST" action="/inspeksi">
+<input type="hidden" name="UnitID" value="<%= u.UnitID %>">
+<div class="card mb-3"><div class="card-header">Data Inspeksi</div><div class="card-body row g-2">
+<div class="col-md-4"><label class="form-label fw-semibold">Tanggal Inspeksi</label><input type="date" name="TanggalInspeksi" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Kondisi Awal (%)</label><input type="text" name="KondisiAwal" class="form-control" placeholder="Misal: 45%" required></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Lokasi Inspeksi</label><input type="text" name="LokasiInspeksi" class="form-control" required value="<%= u.LokasiUnit||'' %>"></div>
+<div class="col-12"><label class="form-label fw-semibold">Catatan Kerusakan</label><textarea name="CatatanKerusakan" class="form-control" rows="3" required placeholder="Deskripsikan kerusakan per bagian mesin..."></textarea></div>
+</div></div>
+<div class="card mb-3"><div class="card-header">🤖 Estimasi (AI Simulasi)</div><div class="card-body row g-2">
+<div class="alert alert-info py-2 small"><i class="bi bi-robot me-1"></i> AI mencocokkan data kerusakan dengan histori unit serupa. Anda dapat menerima, mengubah, atau mengabaikan rekomendasi ini.</div>
+<div class="col-md-4"><label class="form-label fw-semibold">Est. Jam Kerja</label><input type="number" name="EstimasiJamKerja" class="form-control" placeholder="jam" value="40"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Est. Biaya Suku Cadang (Rp)</label><input type="number" name="EstimasiSukuCadang" class="form-control" value="3500000"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Kesimpulan Kelayakan</label>
+<select name="KesimpulanKelayakan" class="form-select" required><option value="Layak">✅ Layak untuk direkondisi</option><option value="Tidak Layak">❌ Tidak Layak</option></select></div>
+</div></div>
+<button class="btn btn-warning px-4">Terbitkan Laporan Inspeksi</button>
+<a href="/inspeksi" class="btn btn-outline-secondary ms-2">Batal</a>
+</form>
+<%- include('../partial/foot') %>

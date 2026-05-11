@@ -1,0 +1,22 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'rekondisi'}) %>
+<div class="topbar"><h4>Manajemen Rekondisi</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mLB">+ Buat LogBook</button></div>
+<%- include('../partial/flash') %>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>LogBook ID</th><th>Unit</th><th>Tgl Mulai</th><th>Biaya SC</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td><a href="/rekondisi/<%= r.LogBookID %>"><%= r.LogBookID %></a></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.UnitID %> · <%= r.JenisMesin %></small></td>
+<td><%= new Date(r.TanggalMulai).toLocaleDateString('id-ID') %></td>
+<td>Rp <%= Number(r.TotalBiayaSC).toLocaleString('id-ID') %></td>
+<td><span class="badge bg-<%= r.StatusLogBook==='Selesai'?'success':'primary' %>"><%= r.StatusLogBook %></span></td>
+<td class="d-flex gap-1">
+<a href="/rekondisi/<%= r.LogBookID %>" class="btn btn-sm btn-outline-primary">Detail</a>
+<% if(r.StatusLogBook==='Aktif'){ %><form method="POST" action="/rekondisi/<%= r.LogBookID %>/selesai" class="d-inline"><button class="btn btn-sm btn-success" onclick="return confirm('Selesaikan rekondisi?')">Selesai</button></form><% } %>
+</td></tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="6" class="text-center text-muted p-4">Belum ada logbook rekondisi</td></tr><% } %>
+</tbody></table></div></div>
+<div class="modal fade" id="mLB"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Buat LogBook Rekondisi (UC-10)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/rekondisi"><div class="modal-body">
+<div class="mb-3"><label class="form-label fw-semibold">Unit (Status: Masuk Gudang)</label><select name="UnitID" class="form-select" required><option value="">Pilih unit...</option><% unitSiap.forEach(u=>{ %><option value="<%= u.UnitID %>"><%= u.UnitID %> — <%= u.Merk %> <%= u.Tipe %> (<%= u.JenisMesin %>)</option><% }) %></select></div>
+<div class="mb-3"><label class="form-label fw-semibold">Tanggal Mulai</label><input type="date" name="TanggalMulai" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Buat LogBook</button></div></form></div></div></div>
+<%- include('../partial/foot') %>

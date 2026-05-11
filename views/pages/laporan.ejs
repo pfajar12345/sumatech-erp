@@ -1,0 +1,41 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'laporan'}) %>
+<div class="topbar"><h4>Laporan & Executive Dashboard (UC-19, UC-20)</h4></div>
+<%- include('../partial/flash') %>
+<div class="row g-3 mb-3">
+  <div class="col-md-3"><div class="card p-3 border-start border-success border-4"><div class="text-muted small">Unit Siap Jual</div><div class="fs-2 fw-bold text-success"><%= unitReady %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-primary border-4"><div class="text-muted small">Dalam Rekondisi</div><div class="fs-2 fw-bold text-primary"><%= unitRekondisi %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-secondary border-4"><div class="text-muted small">Total Terjual</div><div class="fs-2 fw-bold"><%= unitSold %></div></div></div>
+  <div class="col-md-3"><div class="card p-3 border-start border-warning border-4"><div class="text-muted small">Total Penjualan (all)</div><div class="fw-bold text-warning">Rp <%= Number(totalPenjualan).toLocaleString('id-ID') %></div></div></div>
+</div>
+<form method="GET" class="card card-body mb-3 d-flex flex-row align-items-end gap-2 flex-wrap">
+  <div><label class="form-label fw-semibold mb-1">Dari</label><input type="date" name="dari" class="form-control" value="<%= tglDari %>"></div>
+  <div><label class="form-label fw-semibold mb-1">Sampai</label><input type="date" name="sampai" class="form-control" value="<%= tglSampai %>"></div>
+  <button class="btn btn-warning">Tampilkan</button>
+</form>
+<div class="row g-3">
+<div class="col-md-8"><div class="card"><div class="card-header">Laporan Penjualan (UC-19)</div><div class="card-body p-0">
+<% const totalPeriode=penjualan.reduce((a,r)=>a+Number(r.TotalHarga),0); %>
+<% if(penjualan.length){ %><div class="p-3 border-bottom"><strong>Total Penjualan Periode:</strong> Rp <%= totalPeriode.toLocaleString('id-ID') %> &nbsp; <strong>Laba Kotor:</strong> <span class="text-success">Rp <%= Number(labaPeriode).toLocaleString('id-ID') %></span></div><% } %>
+<table class="table table-sm mb-0"><thead><tr><th>No. Invoice</th><th>Pelanggan</th><th>Unit</th><th>Total</th><th>HPP</th><th>Laba Kotor</th><th>Tanggal</th></tr></thead><tbody>
+<% penjualan.forEach(r=>{ %><tr>
+<td class="small"><%= r.NomorInvoice %></td>
+<td><small><%= r.NamaPelanggan %></small></td>
+<td class="small"><%= r.JenisMesin %> <%= r.Merk %></td>
+<td class="fw-bold">Rp <%= Number(r.TotalHarga).toLocaleString('id-ID') %></td>
+<td class="text-muted small">Rp <%= Number(r.HPP||0).toLocaleString('id-ID') %></td>
+<td class="text-success fw-bold">Rp <%= Number(r.LabaKotor||0).toLocaleString('id-ID') %></td>
+<td><small><%= new Date(r.TanggalInvoice).toLocaleDateString('id-ID') %></small></td>
+</tr><% }) %>
+<% if(!penjualan.length){ %><tr><td colspan="7" class="text-center text-muted p-4">Tidak ada penjualan pada periode ini</td></tr><% } %>
+</tbody></table></div></div></div>
+<div class="col-md-4">
+<div class="card mb-3"><div class="card-header">Per Jenis Mesin</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Jenis</th><th>Qty</th><th>Total</th></tr></thead><tbody>
+<% perJenis.forEach(r=>{ %><tr><td><%= r.JenisMesin %></td><td><span class="badge bg-secondary"><%= r.jumlah %></span></td><td class="small">Rp <%= Number(r.total).toLocaleString('id-ID') %></td></tr><% }) %>
+<% if(!perJenis.length){ %><tr><td colspan="3" class="text-center text-muted p-3">-</td></tr><% } %>
+</tbody></table></div></div>
+<div class="card"><div class="card-header">Laporan Pembelian</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Unit</th><th>Harga Beli</th></tr></thead><tbody>
+<% pembelian.forEach(r=>{ %><tr><td class="small"><%= r.UnitID %><br><span class="text-muted"><%= r.Merk %> <%= r.Tipe %></span></td><td>Rp <%= Number(r.HargaBeli||0).toLocaleString('id-ID') %></td></tr><% }) %>
+<% if(!pembelian.length){ %><tr><td colspan="2" class="text-center text-muted p-3">-</td></tr><% } %>
+</tbody></table></div></div>
+</div></div>
+<%- include('../partial/foot') %>

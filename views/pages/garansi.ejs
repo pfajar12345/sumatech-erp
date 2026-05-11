@@ -1,0 +1,45 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'garansi'}) %>
+<div class="topbar"><h4>Garansi & Klaim (UC-17)</h4></div>
+<%- include('../partial/flash') %>
+<div class="row g-3">
+<div class="col-md-7"><div class="card"><div class="card-header">Data Garansi Aktif</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Garansi ID</th><th>Unit</th><th>Pelanggan</th><th>Aktif s/d</th><th>Status</th></tr></thead><tbody>
+<% garansi.forEach(g=>{ %><tr>
+<td><small><%= g.GaransiID %></small></td>
+<td class="small"><%= g.Merk %> <%= g.Tipe %><br><span class="text-muted"><%= g.JenisMesin %></span></td>
+<td><%= g.NamaPelanggan %></td>
+<td class="small"><%= new Date(g.TanggalBerakhir).toLocaleDateString('id-ID') %></td>
+<td><span class="badge bg-<%= g.StatusGaransi==='Aktif'?'success':'secondary' %>"><%= g.StatusGaransi %></span></td>
+</tr><% }) %>
+<% if(!garansi.length){ %><tr><td colspan="5" class="text-center text-muted p-4">Belum ada garansi</td></tr><% } %>
+</tbody></table></div></div></div>
+<div class="col-md-5"><div class="card">
+<div class="card-header d-flex justify-content-between">Klaim Garansi<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#mKlaim">+ Catat Klaim</button></div>
+<div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Unit</th><th>Pelanggan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+<% klaim.forEach(k=>{ %><tr>
+<td class="small"><%= k.Merk %> <%= k.Tipe %></td>
+<td><small><%= k.NamaPelanggan %></small></td>
+<td><span class="badge bg-<%= k.StatusKlaim==='Selesai'?'success':k.StatusKlaim==='Ditolak'?'danger':'warning' %>"><%= k.StatusKlaim %></span></td>
+<td><form method="POST" action="/garansi/klaim/<%= k.KlaimID %>/update" class="d-flex gap-1">
+<select name="StatusKlaim" class="form-select form-select-sm" style="width:110px"><option <%=k.StatusKlaim==='Dalam Proses'?'selected':''%>>Dalam Proses</option><option <%=k.StatusKlaim==='Selesai'?'selected':''%>>Selesai</option><option <%=k.StatusKlaim==='Ditolak'?'selected':''%>>Ditolak</option></select>
+<button class="btn btn-sm btn-outline-secondary">✓</button></form></td>
+</tr><% }) %>
+<% if(!klaim.length){ %><tr><td colspan="4" class="text-center text-muted p-3">Belum ada klaim</td></tr><% } %>
+</tbody></table></div></div></div></div>
+
+<div class="modal fade" id="mKlaim"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Klaim Garansi</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/garansi/klaim"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Garansi</label><select name="GaransiID" class="form-select" required onchange="isiData(this)"><option value="">Pilih garansi aktif...</option>
+<% garansi.filter(g=>g.StatusGaransi==='Aktif').forEach(g=>{ %><option value="<%= g.GaransiID %>" data-unit="<%= g.UnitID %>" data-plg="<%= g.PelangganID %>"><%= g.GaransiID %> — <%= g.NamaPelanggan %> (<%= g.Merk %> <%= g.Tipe %>)</option><% }) %></select></div>
+<input type="hidden" name="UnitID" id="unitID">
+<input type="hidden" name="PelangganID" id="pelangganID">
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal Klaim</label><input type="date" name="TanggalKlaim" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+<div class="mb-2"><label class="form-label fw-semibold">Deskripsi Masalah</label><textarea name="DeskripsiMasalah" class="form-control" rows="3" required placeholder="Jelaskan masalah yang dialami..."></textarea></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-danger">Catat Klaim</button></div></form></div></div></div>
+<script>
+function isiData(sel){
+  const opt=sel.options[sel.selectedIndex];
+  document.getElementById('unitID').value=opt.dataset.unit||'';
+  document.getElementById('pelangganID').value=opt.dataset.plg||'';
+}
+</script>
+<%- include('../partial/foot') %>

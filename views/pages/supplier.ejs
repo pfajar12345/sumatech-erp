@@ -1,0 +1,15 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'supplier'}) %>
+<div class="topbar"><h4>Data Supplier</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#m">+ Tambah</button></div>
+<%- include('../partial/flash') %>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>ID</th><th>Nama Supplier</th><th>Kontak</th><th>Jenis Pasokan</th><th>Alamat</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr><td><%= r.SupplierID %></td><td class="fw-semibold"><%= r.NamaSupplier %></td><td><%= r.Kontak %></td><td><span class="badge bg-info text-dark"><%= r.JenisPasokan %></span></td><td class="text-muted small"><%= r.Alamat %></td></tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="5" class="text-center text-muted p-4">Belum ada supplier</td></tr><% } %>
+</tbody></table></div></div>
+<div class="modal fade" id="m"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Tambah Supplier</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/supplier"><div class="modal-body">
+<div class="mb-3"><label class="form-label fw-semibold">Nama Supplier</label><input type="text" name="NamaSupplier" class="form-control" required></div>
+<div class="mb-3"><label class="form-label fw-semibold">Alamat</label><textarea name="Alamat" class="form-control" rows="2" required></textarea></div>
+<div class="row"><div class="col"><label class="form-label fw-semibold">Kontak (HP)</label><input type="text" name="Kontak" class="form-control" required></div>
+<div class="col"><label class="form-label fw-semibold">Jenis Pasokan</label><input type="text" name="JenisPasokan" class="form-control" required placeholder="Pompa, Boiler..."></div></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
+<%- include('../partial/foot') %>

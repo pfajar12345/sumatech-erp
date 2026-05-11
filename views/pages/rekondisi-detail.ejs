@@ -1,0 +1,36 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'rekondisi'}) %>
+<div class="topbar"><div><h4><%= lb.LogBookID %> — <%= lb.Merk %> <%= lb.Tipe %></h4><small class="text-muted">UC-11 & UC-12 | <%= lb.JenisMesin %></small></div>
+<div class="d-flex gap-2"><span class="badge bg-<%= lb.StatusLogBook==='Selesai'?'success':'primary' %> fs-6"><%= lb.StatusLogBook %></span><a href="/rekondisi" class="btn btn-outline-secondary btn-sm">← Kembali</a></div></div>
+<%- include('../partial/flash') %>
+<div class="row g-3">
+<div class="col-md-6"><div class="card"><div class="card-header d-flex justify-content-between">Tahapan Perbaikan (UC-11)
+<% if(lb.StatusLogBook==='Aktif'){ %><button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#mTahap">+ Tambah</button><% } %></div>
+<div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Tahapan</th><th>Status</th><th>Teknisi</th><th>Deskripsi</th></tr></thead><tbody>
+<% details.forEach(d=>{ %><tr><td class="small"><%= d.TahapanPerbaikan %></td><td><span class="badge bg-<%= d.StatusTahapan==='Selesai'?'success':d.StatusTahapan==='Sedang Berjalan'?'primary':'secondary' %>"><%= d.StatusTahapan %></span></td><td class="small"><%= d.NamaStaf %></td><td class="small text-muted"><%= d.DeskripsiKerja||'-' %></td></tr><% }) %>
+<% if(!details.length){ %><tr><td colspan="4" class="text-center text-muted p-3">Belum ada tahapan</td></tr><% } %>
+</tbody></table></div></div></div>
+
+<div class="col-md-6"><div class="card"><div class="card-header d-flex justify-content-between">Pemakaian Suku Cadang (UC-12)
+<% if(lb.StatusLogBook==='Aktif'){ %><button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#mSC">+ Catat</button><% } %></div>
+<div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Item</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>
+<% let totalSC=0; pemakaian.forEach(p=>{ totalSC+=Number(p.Subtotal); %><tr><td class="small"><%= p.NamaItem %></td><td><%= p.JumlahDigunakan %> <%= p.Satuan %></td><td>Rp <%= Number(p.Subtotal).toLocaleString('id-ID') %></td></tr><% }) %>
+<% if(!pemakaian.length){ %><tr><td colspan="3" class="text-center text-muted p-3">Belum ada pemakaian</td></tr><% } %>
+<tr class="fw-bold"><td colspan="2">Total SC</td><td class="text-warning">Rp <%= totalSC.toLocaleString('id-ID') %></td></tr>
+</tbody></table></div></div></div>
+</div>
+
+<div class="modal fade" id="mTahap"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Tahapan Perbaikan</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/rekondisi/<%= lb.LogBookID %>/tahapan"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Tahapan</label><select name="TahapanPerbaikan" class="form-select" required><% ['Inspeksi Mendalam','Pembongkaran','Perbaikan dan Penggantian Komponen','Perakitan','Pengujian Fungsional'].forEach(t=>{ %><option><%= t %></option><% }) %></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Status</label><select name="StatusTahapan" class="form-select"><option>Sedang Berjalan</option><option>Selesai</option></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Teknisi</label><select name="StafID" class="form-select"><% teknisi.forEach(t=>{ %><option value="<%= t.StafID %>"><%= t.NamaStaf %></option><% }) %></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Deskripsi Pekerjaan</label><textarea name="DeskripsiKerja" class="form-control" rows="2"></textarea></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
+
+<div class="modal fade" id="mSC"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Pemakaian Suku Cadang</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/rekondisi/<%= lb.LogBookID %>/pemakaian"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Item Suku Cadang</label><select name="PartID" class="form-select" required><option value="">Pilih...</option><% sc.forEach(s=>{ %><option value="<%= s.PartID %>"><%= s.NamaItem %> (Stok: <%= s.StokTersedia %> <%= s.Satuan %>)</option><% }) %></select></div>
+<div class="mb-2"><label class="form-label fw-semibold">Jumlah</label><input type="number" name="JumlahDigunakan" class="form-control" min="1" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal</label><input type="date" name="TanggalPemakaian" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Catat (FIFO)</button></div></form></div></div></div>
+<%- include('../partial/foot') %>

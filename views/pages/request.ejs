@@ -1,0 +1,51 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'request'}) %>
+<div class="topbar"><h4>Request Unit (CRM)</h4><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mReq">+ Buat Request</button></div>
+<%- include('../partial/flash') %>
+<div class="card"><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>ID</th><th>Pelanggan</th><th>Mesin</th><th>Budget</th><th>Opsi Bayar</th><th>Status</th><th>Aksi</th></tr></thead><tbody>
+<% const sc2={Baru:'secondary','DP Diterima':'info','Dalam Pencarian':'primary','Estimasi Terkirim':'warning',Disetujui:'success',Dibatalkan:'danger',Selesai:'dark'}; %>
+<% rows.forEach(r=>{ %><tr>
+<td><small><%= r.RequestUnitID %></small></td>
+<td><%= r.NamaPelanggan %></td>
+<td><%= r.JenisMesin %><br><small class="text-muted"><%= r.MerkPreferensi||'Semua merk' %></small></td>
+<td>Rp <%= Number(r.HargaBudget).toLocaleString('id-ID') %></td>
+<td><%= r.OpsiPembayaran?r.OpsiPembayaran:'-' %></td>
+<td><span class="badge bg-<%= sc2[r.StatusRequest]||'secondary' %>"><%= r.StatusRequest %></span></td>
+<td class="d-flex gap-1 flex-wrap">
+<% if(r.StatusRequest==='Baru'){ %><button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#mDP" onclick="setDP('<%= r.RequestUnitID %>')">Catat DP</button><% } %>
+<% if(r.StatusRequest==='DP Diterima' || r.StatusRequest==='Dalam Pencarian'){ %><a href="/request/<%= r.RequestUnitID %>/pilih" class="btn btn-sm btn-outline-primary">Pilih Unit</a><% } %>
+<% if(r.StatusRequest==='Estimasi Terkirim'){ %><button class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#mOpsi" onclick="setOpsi('<%= r.RequestUnitID %>')">Catat Opsi Bayar</button><% } %>
+</td></tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="7" class="text-center text-muted p-4">Belum ada request</td></tr><% } %>
+</tbody></table></div></div>
+
+<div class="modal fade" id="mReq"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Buat Request Unit</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" action="/request"><div class="modal-body row g-2">
+<div class="col-md-6"><label class="form-label fw-semibold">Pelanggan</label><select name="PelangganID" class="form-select" required><option value="">Pilih...</option><% pelanggan.forEach(p=>{ %><option value="<%= p.PelangganID %>"><%= p.NamaPelanggan %></option><% }) %></select></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Jenis Mesin</label><select name="JenisMesin" class="form-select" required><% ['Pompa','Boiler','Dinamo','Control Panel','Valve'].forEach(j=>{ %><option><%= j %></option><% }) %></select></div>
+<div class="col-md-3"><label class="form-label fw-semibold">Merk Preferensi</label><input type="text" name="MerkPreferensi" class="form-control" placeholder="Opsional"></div>
+<div class="col-12"><label class="form-label fw-semibold">Spesifikasi Teknis</label><textarea name="SpesifikasiTeknis" class="form-control" rows="2" placeholder="Kapasitas, daya, dimensi..."></textarea></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Kondisi Minimum</label><input type="text" name="KondisiMinimum" class="form-control" placeholder="70%"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Budget Maks (Rp)</label><input type="number" name="HargaBudget" class="form-control" required></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Catatan</label><input type="text" name="CatatanTambahan" class="form-control"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan Request</button></div></form></div></div></div>
+
+<div class="modal fade" id="mDP"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat DP Jaminan</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" id="formDP"><div class="modal-body">
+<div class="mb-2"><label class="form-label fw-semibold">Nominal DP (Rp)</label><input type="number" name="NominalDP" class="form-control" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">No. Referensi Transfer</label><input type="text" name="NomorReferensi" class="form-control" required></div>
+<div class="mb-2"><label class="form-label fw-semibold">Tanggal Bayar</label><input type="date" name="TanggalBayar" class="form-control" required value="<%= new Date().toISOString().slice(0,10) %>"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Catat DP</button></div></form></div></div></div>
+
+<div class="modal fade" id="mOpsi"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Opsi Pembayaran (UC-09)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<form method="POST" id="formOpsi"><div class="modal-body">
+<div class="mb-3"><label class="form-label fw-semibold">Opsi Pembayaran Pelanggan</label>
+<div class="form-check"><input class="form-check-input" type="radio" name="OpsiPembayaran" value="sebagian" required><label class="form-check-label"><strong>Opsi A:</strong> Bayar sebagian sekarang, sisa setelah rekondisi selesai</label></div>
+<div class="form-check"><input class="form-check-input" type="radio" name="OpsiPembayaran" value="penuh"><label class="form-check-label"><strong>Opsi B:</strong> Bayar penuh di akhir setelah rekondisi selesai</label></div></div>
+<div class="mb-2"><label class="form-label fw-semibold">Nilai Disepakati (Rp)</label><input type="number" name="NilaiDisepakati" class="form-control" placeholder="Kosongkan jika belum ada negosiasi"></div>
+</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
+
+<script>
+function setDP(id){ document.getElementById('formDP').action='/request/'+id+'/dp'; }
+function setOpsi(id){ document.getElementById('formOpsi').action='/request/'+id+'/opsi'; }
+</script>
+<%- include('../partial/foot') %>

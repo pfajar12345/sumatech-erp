@@ -1,0 +1,39 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'request'}) %>
+<div class="topbar"><div><h4>Pilih Unit Kandidat</h4><small class="text-muted">Request: <%= req_unit.RequestUnitID %> — <%= req_unit.NamaPelanggan %></small></div><a href="/request" class="btn btn-outline-secondary btn-sm">← Kembali</a></div>
+<%- include('../partial/flash') %>
+<div class="card mb-3"><div class="card-header">Detail Request</div><div class="card-body"><div class="row">
+<div class="col-md-3"><strong>Jenis:</strong> <%= req_unit.JenisMesin %></div>
+<div class="col-md-3"><strong>Merk Preferensi:</strong> <%= req_unit.MerkPreferensi||'Bebas' %></div>
+<div class="col-md-3"><strong>Budget:</strong> Rp <%= Number(req_unit.HargaBudget).toLocaleString('id-ID') %></div>
+<div class="col-md-3"><strong>Kondisi Min:</strong> <%= req_unit.KondisiMinimum||'-' %></div>
+<div class="col-12 mt-2"><strong>Spesifikasi:</strong> <%= req_unit.SpesifikasiTeknis||'-' %></div>
+</div></div></div>
+<% if(!kandidat.length){ %>
+<div class="alert alert-warning"><i class="bi bi-exclamation-triangle me-2"></i>Belum ada unit kandidat yang selesai diinspeksi dan dinyatakan Layak untuk request ini.</div>
+<% } else { %>
+<form method="POST" action="/request/<%= req_unit.RequestUnitID %>/pilih">
+<div class="row g-3 mb-3">
+<% kandidat.forEach(k=>{ %>
+<div class="col-md-6"><div class="card h-100">
+<div class="card-body">
+<div class="form-check mb-2"><input class="form-check-input" type="radio" name="UnitID" value="<%= k.UnitID %>" required><label class="form-check-label fw-bold fs-5"><%= k.Merk %> <%= k.Tipe %></label></div>
+<table class="table table-sm table-borderless mb-0">
+<tr><th>Unit ID</th><td><%= k.UnitID %></td></tr>
+<tr><th>Jenis</th><td><%= k.JenisMesin %></td></tr>
+<tr><th>Kondisi Awal</th><td><%= k.KondisiAwal||'-' %></td></tr>
+<tr><th>Harga Tawar</th><td class="fw-bold">Rp <%= Number(k.HargaTawarSupplier||0).toLocaleString('id-ID') %></td></tr>
+<tr><th>Est. Jam Kerja</th><td><%= k.EstimasiJamKerja||'-' %> jam</td></tr>
+<tr><th>Est. Suku Cadang</th><td>Rp <%= Number(k.EstimasiSukuCadang||0).toLocaleString('id-ID') %></td></tr>
+</table>
+<% const selisih = (k.HargaTawarSupplier||0) - req_unit.HargaBudget; %>
+<div class="mt-2 small <%= selisih>0?'text-danger':'text-success' %>">
+<i class="bi bi-<%= selisih>0?'arrow-up':'arrow-down' %>-circle me-1"></i>
+Harga tawar <%= selisih>0?'melebihi':'di bawah' %> budget: Rp <%= Math.abs(selisih).toLocaleString('id-ID') %>
+</div>
+</div></div></div>
+<% }) %>
+</div>
+<button class="btn btn-warning">Konfirmasi Pilihan Pelanggan</button>
+</form>
+<% } %>
+<%- include('../partial/foot') %>

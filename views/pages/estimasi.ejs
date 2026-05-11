@@ -1,0 +1,20 @@
+<%- include('../partial/head') %><%- include('../partial/navbar',{page:'estimasi'}) %>
+<div class="topbar"><h4>Nota Estimasi (UC-08)</h4></div>
+<%- include('../partial/flash') %>
+<% if(unitSiap.length){ %>
+<div class="card mb-3 border-warning"><div class="card-header text-warning">Unit Menunggu Nota Estimasi (<%= unitSiap.length %>)</div><div class="card-body p-0"><table class="table table-sm mb-0"><thead><tr><th>Unit ID</th><th>Mesin</th><th>Harga Tawar</th><th>Est. Jam</th><th>Aksi</th></tr></thead><tbody>
+<% unitSiap.forEach(u=>{ %><tr><td><%= u.UnitID %></td><td><%= u.Merk %> <%= u.Tipe %></td><td>Rp <%= Number(u.HargaTawarSupplier||0).toLocaleString('id-ID') %></td><td><%= u.EstimasiJamKerja||'-' %> jam</td><td><a href="/estimasi/form/<%= u.UnitID %>" class="btn btn-sm btn-warning">Buat Nota Estimasi</a></td></tr><% }) %>
+</tbody></table></div></div>
+<% } %>
+<div class="card"><div class="card-header">Riwayat Nota Estimasi</div><div class="card-body p-0"><table class="table table-hover mb-0"><thead><tr><th>No. Dokumen</th><th>Unit</th><th>Total Est. HPP</th><th>Harga Jual Disepakati</th><th>Status</th><th>Tanggal</th></tr></thead><tbody>
+<% rows.forEach(r=>{ %><tr>
+<td><%= r.NomorDokumen %></td>
+<td><%= r.Merk %> <%= r.Tipe %><br><small class="text-muted"><%= r.UnitID %></small></td>
+<td>Rp <%= Number(r.TotalEstimasiHPP).toLocaleString('id-ID') %></td>
+<td class="fw-bold text-warning">Rp <%= Number(r.HargaJualDisepakati||r.RekomendasiHargaJual||0).toLocaleString('id-ID') %></td>
+<td><span class="badge bg-<%= r.StatusNota==='Disetujui'?'success':r.StatusNota==='Revisi'?'danger':'info' %>"><%= r.StatusNota %></span></td>
+<td><small><%= new Date(r.TanggalTerbit).toLocaleDateString('id-ID') %></small></td>
+</tr><% }) %>
+<% if(!rows.length){ %><tr><td colspan="6" class="text-center text-muted p-4">Belum ada nota estimasi</td></tr><% } %>
+</tbody></table></div></div>
+<%- include('../partial/foot') %>
