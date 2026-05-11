@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'sumatech2024', resave: false, saveUninitialized: false, cookie: { maxAge: 8 * 60 * 60 * 1000 } }));
+app.use(session({ secret: 'sumatech2024', resave: false, saveUninitialized: false, cookie: { maxAge: 8 * 60 * 60 * 1000, secure: false } }));
 app.use(flash());
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
