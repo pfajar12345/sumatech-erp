@@ -16,6 +16,8 @@ router.post('/login', async (req, res) => {
     );
     if (!rows.length) { req.flash('error', 'Username tidak ditemukan'); return res.redirect('/login'); }
     const u = rows[0];
+    console.log('DB Password:', u.Password);
+console.log('Input password:', password);
     if (!await bcrypt.compare(password, u.Password)) { req.flash('error', 'Password salah'); return res.redirect('/login'); }
     req.session.user = { StafID: u.StafID, NamaStaf: u.NamaStaf, Username: u.Username, RoleID: u.RoleID, NamaRole: u.NamaRole };
     res.redirect('/dashboard');
