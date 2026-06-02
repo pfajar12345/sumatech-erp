@@ -13,6 +13,9 @@
 <div class="col-md-4"><label class="form-label fw-semibold">Biaya Suku Cadang (Rp)</label>
 <input type="number" name="BiayaSukuCadang" class="form-control" value="<%= u.EstimasiSukuCadang||0 %>" required oninput="hitung()"></div>
 <div class="col-md-6 mt-2"><div class="alert alert-secondary py-2">Total Est. HPP: <strong id="totalHPP">Rp 0</strong></div></div>
+<% if(nominalDP > 0){ %>
+<div class="col-md-6 mt-2"><div class="alert alert-success py-2">✅ DP Jaminan Sudah Dibayar: <strong>Rp <%= Number(nominalDP).toLocaleString('id-ID') %></strong><br><small>Akan dipotong dari tagihan final di Nota Aktual</small></div></div>
+<% } %>
 </div></div>
 <div class="card mb-3"><div class="card-header">🤖 Rekomendasi Harga Jual (AI Simulasi)</div><div class="card-body">
 <div class="alert alert-info py-2 small"><i class="bi bi-robot me-1"></i> Rekomendasi berdasarkan histori penjualan unit serupa & margin standar perusahaan (markup 50%).</div>

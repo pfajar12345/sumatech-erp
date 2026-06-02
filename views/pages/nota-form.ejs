@@ -4,6 +4,7 @@
 <form method="POST" action="/nota">
 <input type="hidden" name="UnitID" value="<%= lb.UnitID %>">
 <input type="hidden" name="LogBookID" value="<%= lb.LogBookID %>">
+<input type="hidden" name="NominalDP" value="<%= nominalDP %>">
 <div class="card mb-3"><div class="card-header">Biaya Aktual Rekondisi</div><div class="card-body row g-2">
 <div class="col-md-4"><label class="form-label fw-semibold">Biaya Pengadaan Aktual (Rp)</label><input type="number" name="BiayaPengadaanAktual" class="form-control" value="<%= lb.HargaBeli||0 %>" required oninput="hitung()"></div>
 <div class="col-md-4"><label class="form-label fw-semibold">Biaya Rekondisi Aktual (Rp)</label><input type="number" name="BiayaRekondisiAktual" class="form-control" value="<%= lb.TotalBiayaTK||0 %>" required oninput="hitung()"><small class="text-muted">Otomatis dari akumulasi jam kerja (× Rp 150.000/jam)</small></div>
@@ -15,7 +16,13 @@
 <strong>Opsi Pembayaran Pelanggan: <%= req_unit.OpsiPembayaran||'Belum dipilih' %></strong><br>
 <% if(req_unit.OpsiPembayaran==='sebagian'){ %>Pelanggan sudah bayar sebagian. Sistem akan menghitung sisa tagihan.<% } else if(req_unit.OpsiPembayaran==='penuh'){ %>Pelanggan akan bayar penuh di akhir.<% } %>
 </div></div><% } %>
-<div class="col-md-6"><label class="form-label fw-semibold">Harga Jual Final (Rp) <span class="text-danger">*</span></label><input type="number" name="HargaJualFinal" class="form-control" required placeholder="Masukkan harga jual final"></div>
+<% if(nominalDP > 0){ %>
+<div class="col-12"><div class="alert alert-success py-2">✅ DP Jaminan sudah dibayar: <strong>Rp <%= Number(nominalDP).toLocaleString('id-ID') %></strong> → akan dipotong dari tagihan final</div></div>
+<% } %>
+<div class="col-md-6"><label class="form-label fw-semibold">Harga Jual Final (Rp) <span class="text-danger">*</span></label><input type="number" name="HargaJualFinal" id="hargaJualFinal" class="form-control" required placeholder="Masukkan harga jual final" oninput="hitungTagihan()"></div>
+<% if(nominalDP > 0){ %>
+<div class="col-md-6"><label class="form-label fw-semibold">Tagihan Final ke Pelanggan (Rp)</label><input type="text" id="tagihanFinal" class="form-control fw-bold text-warning" readonly></div>
+<% } %>
 </div></div>
 <button class="btn btn-warning px-4">Kunci HPP & Terbitkan Nota</button>
 </form>
@@ -25,6 +32,14 @@ function hitung(){
   const b=parseInt(document.querySelector('[name=BiayaRekondisiAktual]').value)||0;
   const c=parseInt(document.querySelector('[name=BiayaSCaktual]').value)||0;
   document.getElementById('totalHPP').textContent='Rp '+(a+b+c).toLocaleString('id-ID');
+  hitungTagihan();
+}
+function hitungTagihan(){
+  const hj=parseInt(document.getElementById('hargaJualFinal').value)||0;
+  const dp=<%= nominalDP %>;
+  const tagihan=Math.max(0, hj-dp);
+  const el=document.getElementById('tagihanFinal');
+  if(el) el.value='Rp '+tagihan.toLocaleString('id-ID');
 }
 hitung();
 </script>

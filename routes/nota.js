@@ -11,22 +11,29 @@ router.get('/', async (req, res) => {
 router.get('/form/:lbId', async (req, res) => {
   const [[lb]] = await db.query(`SELECT lb.*,u.JenisMesin,u.Merk,u.Tipe,u.HargaBeli,u.UnitID FROM logbook lb JOIN unit u ON lb.UnitID=u.UnitID WHERE lb.LogBookID=?`, [req.params.lbId]);
   if (!lb) { req.flash('error','LogBook tidak ditemukan'); return res.redirect('/nota'); }
-  const [[req_unit]] = await db.query(`SELECT r.OpsiPembayaran,r.NilaiDisepakati FROM unit u LEFT JOIN request_unit r ON u.RequestUnitID=r.RequestUnitID WHERE u.UnitID=?`, [lb.UnitID]);
-  res.render('pages/nota-form', { title: 'Form Nota Aktual', lb, req_unit: req_unit||null });
+  const [[req_unit]] = await db.query(`SELECT r.OpsiPembayaran,r.NilaiDisepakati,r.RequestUnitID FROM unit u LEFT JOIN request_unit r ON u.RequestUnitID=r.RequestUnitID WHERE u.UnitID=?`, [lb.UnitID]);
+  let nominalDP = 0;
+  if (req_unit && req_unit.RequestUnitID) {
+    const [[dp]] = await db.query('SELECT COALESCE(SUM(NominalDP),0) total FROM dp_jaminan WHERE RequestUnitID=?', [req_unit.RequestUnitID]);
+    nominalDP = dp.total || 0;
+  }
+  res.render('pages/nota-form', { title: 'Form Nota Aktual', lb, req_unit: req_unit||null, nominalDP });
 });
 
 router.post('/', async (req, res) => {
-  const { UnitID, LogBookID, BiayaPengadaanAktual, BiayaRekondisiAktual, BiayaSCaktual, HargaJualFinal } = req.body;
+  const { UnitID, LogBookID, BiayaPengadaanAktual, BiayaRekondisiAktual, BiayaSCaktual, HargaJualFinal, NominalDP } = req.body;
   try {
     const [last] = await db.query("SELECT NotaAktualID FROM nota_rekondisi_aktual ORDER BY NotaAktualID DESC LIMIT 1");
     const n = last.length ? parseInt(last[0].NotaAktualID.split('-')[1]) + 1 : 1;
     const id = 'NAK-'+String(n).padStart(3,'0');
     const nomor = `NAK/${new Date().getFullYear()}/${String(n).padStart(3,'0')}`;
     const totalHPP = parseInt(BiayaPengadaanAktual)+parseInt(BiayaRekondisiAktual)+parseInt(BiayaSCaktual);
+    const dp = parseInt(NominalDP)||0;
+    const tagihanFinal = Math.max(0, parseInt(HargaJualFinal||0) - dp);
     await db.query('INSERT INTO nota_rekondisi_aktual VALUES (?,?,?,?,?,?,?,?,?,?,NOW())',
-      [id, UnitID, LogBookID, req.session.user.StafID, nomor, BiayaPengadaanAktual, BiayaRekondisiAktual, BiayaSCaktual, totalHPP, HargaJualFinal||null]);
-    await db.query("UPDATE unit SET StatusUnit='Ready', HPP=?, HargaJual=? WHERE UnitID=?", [totalHPP, HargaJualFinal||null, UnitID]);
-    req.flash('success', `Nota ${nomor} diterbitkan — HPP dikunci, unit berstatus Ready`);
+      [id, UnitID, LogBookID, req.session.user.StafID, nomor, BiayaPengadaanAktual, BiayaRekondisiAktual, BiayaSCaktual, totalHPP, tagihanFinal]);
+    await db.query("UPDATE unit SET StatusUnit='Ready', HPP=?, HargaJual=? WHERE UnitID=?", [totalHPP, tagihanFinal, UnitID]);
+    req.flash('success', `Nota ${nomor} diterbitkan — HPP dikunci${dp>0?', DP Rp '+dp.toLocaleString('id-ID')+' sudah dipotong':''}`);
   } catch(e) { req.flash('error', e.message); }
   res.redirect('/nota');
 });

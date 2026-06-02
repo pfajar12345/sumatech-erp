@@ -11,10 +11,15 @@ router.get('/', async (req, res) => {
 router.get('/form/:unitId', async (req, res) => {
   const [[u]] = await db.query(`SELECT u.*,li.EstimasiJamKerja,li.EstimasiSukuCadang,li.CatatanKerusakan FROM unit u LEFT JOIN laporan_inspeksi li ON u.UnitID=li.UnitID WHERE u.UnitID=?`, [req.params.unitId]);
   if (!u) { req.flash('error','Unit tidak ditemukan'); return res.redirect('/estimasi'); }
-  // AI simulasi rekomendasi harga jual (markup 45-55% dari estimasi HPP)
+  // Ambil DP Jaminan jika ada RequestUnitID
+  let nominalDP = 0;
+  if (u.RequestUnitID) {
+    const [[dp]] = await db.query('SELECT COALESCE(SUM(NominalDP),0) total FROM dp_jaminan WHERE RequestUnitID=?', [u.RequestUnitID]);
+    nominalDP = dp.total || 0;
+  }
   const estHPP = (u.HargaTawarSupplier||0) + ((u.EstimasiJamKerja||0)*150000) + (u.EstimasiSukuCadang||0);
   const rekomendasiHJ = Math.round(estHPP * 1.50 / 100000) * 100000;
-  res.render('pages/estimasi-form', { title: 'Form Nota Estimasi', u, estHPP, rekomendasiHJ });
+  res.render('pages/estimasi-form', { title: 'Form Nota Estimasi', u, estHPP, rekomendasiHJ, nominalDP });
 });
 
 router.post('/', async (req, res) => {
