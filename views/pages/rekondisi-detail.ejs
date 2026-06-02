@@ -25,7 +25,26 @@
 <div class="mb-2"><label class="form-label fw-semibold">Status</label><select name="StatusTahapan" class="form-select"><option>Sedang Berjalan</option><option>Selesai</option></select></div>
 <div class="mb-2"><label class="form-label fw-semibold">Teknisi</label><select name="StafID" class="form-select"><% teknisi.forEach(t=>{ %><option value="<%= t.StafID %>"><%= t.NamaStaf %></option><% }) %></select></div>
 <div class="mb-2"><label class="form-label fw-semibold">Deskripsi Pekerjaan</label><textarea name="DeskripsiKerja" class="form-control" rows="2"></textarea></div>
-<div class="mb-2"><label class="form-label fw-semibold">Jam Kerja</label><input type="number" name="JamKerja" class="form-control" min="0" step="0.5" placeholder="contoh: 4.5"><small class="text-muted">× Rp 150.000/jam → otomatis masuk Biaya Rekondisi Aktual</small></div>
+<div class="mb-2"><label class="form-label fw-semibold">Jam Kerja</label>
+<div class="input-group">
+  <button type="button" class="btn btn-outline-secondary" onclick="ubahJam(-0.5)">−</button>
+  <input type="number" name="JamKerja" id="jamKerja" class="form-control text-center" min="0" step="0.5" value="0" onchange="updateBiaya()">
+  <button type="button" class="btn btn-outline-secondary" onclick="ubahJam(0.5)">+</button>
+</div>
+<div class="alert alert-warning py-1 mt-1 small" id="previewBiaya">Biaya TK: <strong>Rp 0</strong></div></div>
+<script>
+function ubahJam(n){
+  const el=document.getElementById('jamKerja');
+  const val=Math.max(0,parseFloat(el.value||0)+n);
+  el.value=val;
+  updateBiaya();
+}
+function updateBiaya(){
+  const jam=parseFloat(document.getElementById('jamKerja').value)||0;
+  const biaya=jam*150000;
+  document.getElementById('previewBiaya').innerHTML='Biaya TK: <strong>Rp '+biaya.toLocaleString('id-ID')+'</strong> ('+jam+' jam × Rp 150.000)';
+}
+</script>
 </div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning">Simpan</button></div></form></div></div></div>
 
 <div class="modal fade" id="mSC"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Catat Pemakaian Suku Cadang</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
