@@ -31,8 +31,10 @@ function hitung(){
   const s=parseInt(document.querySelector('[name=BiayaSukuCadang]').value)||0;
   const total=p+j+s;
   document.getElementById('totalHPP').textContent='Rp '+total.toLocaleString('id-ID');
-  document.getElementById('rekAI').value='Rp '+Math.round(total*1.5/100000)*100000.toLocaleString('id-ID');
+  const rek=Math.round(total*1.5/100000)*100000;
+  document.getElementById('rekAI').value='Rp '+rek.toLocaleString('id-ID');
+  document.querySelector('[name=HargaJualDisepakati]').value=rek;
 }
-hitung();
+hitung()
 </script>
 <%- include('../partial/foot') %>
