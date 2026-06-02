@@ -33,13 +33,19 @@ router.get('/:id', async (req, res) => {
 });
 
 // UC-11: update tahapan
+// UC-11: update tahapan
 router.post('/:id/tahapan', async (req, res) => {
-  const { TahapanPerbaikan, StatusTahapan, DeskripsiKerja, StafID } = req.body;
+  const { TahapanPerbaikan, StatusTahapan, DeskripsiKerja, StafID, JamKerja } = req.body;
   try {
     const selesai = StatusTahapan === 'Selesai' ? 'NOW()' : 'NULL';
+    const jam = parseFloat(JamKerja)||0;
+    const biayaTK = jam * 150000;
     await db.query(`INSERT INTO detail_perbaikan (LogBookID,StafID,TahapanPerbaikan,StatusTahapan,DeskripsiKerja,TanggalSelesai) VALUES (?,?,?,?,?,${selesai})`,
       [req.params.id, StafID||req.session.user.StafID, TahapanPerbaikan, StatusTahapan, DeskripsiKerja]);
-    req.flash('success', 'Tahapan berhasil dicatat');
+    if (jam > 0) {
+      await db.query('UPDATE logbook SET TotalBiayaTK=COALESCE(TotalBiayaTK,0)+? WHERE LogBookID=?', [biayaTK, req.params.id]);
+    }
+    req.flash('success', `Tahapan berhasil dicatat${jam>0?' ('+jam+' jam = Rp '+biayaTK.toLocaleString('id-ID')+')':''}`);
   } catch(e) { req.flash('error', e.message); }
   res.redirect('/rekondisi/'+req.params.id);
 });

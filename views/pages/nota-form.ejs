@@ -6,7 +6,7 @@
 <input type="hidden" name="LogBookID" value="<%= lb.LogBookID %>">
 <div class="card mb-3"><div class="card-header">Biaya Aktual Rekondisi</div><div class="card-body row g-2">
 <div class="col-md-4"><label class="form-label fw-semibold">Biaya Pengadaan Aktual (Rp)</label><input type="number" name="BiayaPengadaanAktual" class="form-control" value="<%= lb.HargaBeli||0 %>" required oninput="hitung()"></div>
-<div class="col-md-4"><label class="form-label fw-semibold">Biaya Rekondisi Aktual (Rp)</label><input type="number" name="BiayaRekondisiAktual" class="form-control" value="<%= lb.TotalBiayaTK||0 %>" required oninput="hitung()"></div>
+<div class="col-md-4"><label class="form-label fw-semibold">Biaya Rekondisi Aktual (Rp)</label><input type="number" name="BiayaRekondisiAktual" class="form-control" value="<%= lb.TotalBiayaTK||0 %>" required oninput="hitung()"><small class="text-muted">Otomatis dari akumulasi jam kerja (× Rp 150.000/jam)</small></div>
 <div class="col-md-4"><label class="form-label fw-semibold">Biaya Suku Cadang Aktual (Rp)</label><input type="number" name="BiayaSCaktual" class="form-control" value="<%= lb.TotalBiayaSC||0 %>" required oninput="hitung()"></div>
 <div class="col-md-6 mt-2"><div class="alert alert-secondary py-2">Total HPP Aktual: <strong id="totalHPP">Rp 0</strong></div></div>
 </div></div>
